@@ -8,15 +8,15 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 
 
-function Listing({list, onClick}) {
-
+function Listing({list, state, onClick}) {
+  console.log(list)
   return (
     <Box sx={{ border: 1, width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
       <nav aria-label="main mailbox folders">
       <List>
       {[...list].map(item => (
           <ListItem key={item.id} disablePadding>
-            <ListItemButton onClick={() => onClick(item)}>
+            <ListItemButton onClick={() => onClick(state, item)}>
               <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
@@ -48,8 +48,9 @@ function App() {
   const [state, setState] = useState(0);
   const [list, setList] = useState([]);
 
-  function loadData(item) {
-    if (item===undefined) {
+  function loadData(state, item) {
+    console.log(state, item)
+    if (item===0||item===undefined) {
     setTimeout(() => {
       fetch(
         "https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/users.json"
@@ -61,23 +62,25 @@ function App() {
           setList(data);
         });
     }, 100);
-  } else {
+  } else if(item.id!==state.id) {
         fetch(
       "https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/" +
         String(item.id) +
         ".json"
     )
       .then((response) => response.json())
-      .then((data) => setState(data));
+      .then((data) => setState(data))
+  } else {
+    setState(state) 
   }
   }
 
   useEffect(loadData, []); // componentDidMount
-
+  console.log(state)
    return (
     <div className="wrapper">
       <div className="list">
-        <Listing onClick={(item) => loadData(item)} list={list} />
+        <Listing onClick={(state, item) => loadData(state, item)} list={list} state={state} />
       </div>
       <div className="description">
         {(state!==0)? (<Details state={state} />) : (<p>Loading...</p>) }
